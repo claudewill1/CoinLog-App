@@ -1,0 +1,53 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Denomination { HALF_CENT ONE_CENT TWO_CENT THREE_CENT NICKEL HALF_DIME HALF_DIME
+TWENTY_CENT QUARTER HALF_DOLLAR DOLLAR GOLD_DOLLAR TWO_FIFTY
+THREE_DOLLAR FIVE_DOLLAR TEN_DOLLAR TWENTY_DOLLAR }
+enum GradingCompany { NONE CACG PCGS NGC ANACS ICG OTHER }
+
+model User {
+  id String @id @default(cuid())
+  email String @unique
+  name String?
+  password String?
+  coins Coin[]
+  createAt DateTime @default(now())
+  updated @updatedAt
+}
+
+model Coin {
+  id String @id@default(cuid())
+  ownerId String
+  owner User @relation(fields:[ownerId],references:[id],onDelete: Cascade)
+  country String
+  type String
+  denomination Denomination
+  year Int
+  mintMark String?
+  variety String?
+  composition String?
+  weightGrams Float?
+  graded Boolean @default(false)
+  gradingCompany GradingCompany @default(NONE)
+  certNumber String? @unique
+  purchasePrice Decimal @db.Decimal(10,2)
+  currentValue Decimal @db.Decimal(10,2)
+  currency String? @default("USD)
+  notes String?
+  createAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
